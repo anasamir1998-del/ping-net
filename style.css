@@ -1237,9 +1237,11 @@ footer {
 }
 
 .slide-track {
-    animation: scroll 40s linear infinite;
+    animation: scroll 20s linear infinite;
+    /* Sped up from 40s */
     display: flex;
-    width: calc(250px * 16);
+    width: calc(250px * 20);
+    /* Adjusted width for more items */
 }
 
 .slide {
@@ -1274,7 +1276,8 @@ footer {
     }
 
     100% {
-        transform: translateX(calc(-250px * 8));
+        transform: translateX(calc(-250px * 10));
+        /* Adjusted for 10 items */
     }
 }
 
