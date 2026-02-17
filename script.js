@@ -403,7 +403,7 @@ const createCustomAlert = () => {
             (e.ctrlKey && e.shiftKey && e.key === 'C') ||
             (e.ctrlKey && e.shiftKey && e.key === 'J') ||
             (e.key === 'F12') ||
-            (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === 's' || e.key === 'S'))
+            (e.metaKey && e.shiftKey && (e.key === 's' || e.key === 'S' || e.code === 'KeyS'))
         ) {
             e.preventDefault();
             e.stopPropagation();
@@ -420,6 +420,7 @@ const createCustomAlert = () => {
 
     // Window Blur (Often triggered by Snipping Tool)
     window.addEventListener('blur', () => {
+        showRestrictedAlert(); // Trigger black screen on blur
         if (navigator.clipboard) {
             navigator.clipboard.writeText('');
         }
