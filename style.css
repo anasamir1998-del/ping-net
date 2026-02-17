@@ -1200,75 +1200,72 @@ footer {
 }
 
 /* Partners Carousel */
+/* Partners Static Grid */
 .partners-section {
     background: var(--dark-bg);
-    padding: 40px 0;
-    overflow: hidden;
+    padding: 60px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
 }
 
 .partners-slider {
-    height: 100px;
-    margin: auto;
-    overflow: hidden;
-    position: relative;
     width: 100%;
+    margin: 0 auto;
+    position: relative;
 }
 
+/* Removed the gradient overlays */
 .partners-slider::before,
 .partners-slider::after {
-    background: linear-gradient(to right, var(--dark-bg) 0%, rgba(255, 255, 255, 0) 100%);
-    content: "";
-    height: 100px;
-    position: absolute;
-    width: 200px;
-    z-index: 2;
-}
-
-.partners-slider::after {
-    right: 0;
-    top: 0;
-    transform: rotateZ(180deg);
-}
-
-.partners-slider::before {
-    left: 0;
-    top: 0;
+    display: none;
 }
 
 .slide-track {
-    animation: scroll 20s linear infinite;
     display: flex;
-    width: 7500px;
-    /* 3 Sets * 10 Items * 250px */
-    direction: ltr;
-    /* Force LTR for predictable coordinates */
+    flex-wrap: wrap;
+    /* Allow wrapping */
+    justify-content: center;
+    /* Center items */
+    gap: 30px;
+    /* Space between items */
+    width: 100%;
+    animation: none;
+    /* Remove animation */
 }
 
 .slide {
-    height: 100px;
-    width: 250px;
+    height: auto;
+    width: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 20px;
-    flex-shrink: 0;
-    /* Prevent shrinking */
-    position: relative;
-    z-index: 1;
-    /* Ensure above background */
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
 }
 
-@keyframes scroll {
-    0% {
-        transform: translateX(-5000px);
-        /* Start at Set 3 */
-    }
+.slide:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(6, 182, 212, 0.3);
+    transform: translateY(-5px);
+}
 
-    100% {
-        transform: translateX(-2500px);
-        /* Scroll to Set 2 */
-    }
+.partner-logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: var(--transition);
+    cursor: default;
+    white-space: nowrap;
+}
+
+.partner-logo:hover {
+    color: white;
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
 }
 
 /* Process Timeline (Horizontal) */
