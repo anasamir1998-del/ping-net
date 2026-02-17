@@ -1272,12 +1272,13 @@ footer {
 
 @keyframes scroll {
     0% {
-        transform: translateX(0);
+        transform: translateX(calc(-250px * 10));
+        /* Start from duplicate set */
     }
 
     100% {
-        transform: translateX(calc(-250px * 10));
-        /* Adjusted for 10 items */
+        transform: translateX(0);
+        /* Scroll to original set */
     }
 }
 
