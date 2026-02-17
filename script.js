@@ -230,3 +230,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Custom Right Click Alert
+const createCustomAlert = () => {
+    if (document.getElementById('customAlert')) return;
+
+    const alertHTML = `
+        <div id="customAlert" class="custom-alert-overlay">
+            <div class="custom-alert-box">
+                <div class="custom-alert-icon">😎</div>
+                <div class="custom-alert-message">غير مسموح يا برنس</div>
+                <p style="color: #94a3b8;">حقوق الملكية محفوظة لـ PING NET</p>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', alertHTML);
+
+    const alertOverlay = document.getElementById('customAlert');
+
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        alertOverlay.classList.add('active');
+
+        // Vibration for mobile (optional but cool)
+        if (navigator.vibrate) navigator.vibrate(200);
+    });
+
+    // Close on click anywhere
+    alertOverlay.addEventListener('click', () => {
+        alertOverlay.classList.remove('active');
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') alertOverlay.classList.remove('active');
+    });
+};
+
+document.addEventListener('DOMContentLoaded', createCustomAlert);
