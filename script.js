@@ -302,3 +302,71 @@ const createCustomAlert = () => {
 };
 
 document.addEventListener('DOMContentLoaded', createCustomAlert);
+
+// Preloader Logic
+window.addEventListener('load', () => {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        setTimeout(() => {
+            preloader.classList.add('fade-out');
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
+        }, 1500); // Minimum 1.5s display time
+    }
+});
+
+// Typewriter Effect
+const typewriterElement = document.getElementById('typewriter');
+if (typewriterElement) {
+    const phrases = [
+        "حلول تقنية متكاملة",
+        "نبتكر المستقبل الرقمي",
+        "نؤمن بياناتك وأعمالك",
+        "شريكك في النجاح"
+    ];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typeSpeed = 100;
+
+    function type() {
+        const currentPhrase = phrases[phraseIndex];
+
+        if (isDeleting) {
+            typewriterElement.textContent = currentPhrase.substring(0, charIndex - 1);
+            charIndex--;
+            typeSpeed = 50;
+        } else {
+            typewriterElement.textContent = currentPhrase.substring(0, charIndex + 1);
+            charIndex++;
+            typeSpeed = 100;
+        }
+
+        if (!isDeleting && charIndex === currentPhrase.length) {
+            isDeleting = true;
+            typeSpeed = 2000; // Pause at end
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            typeSpeed = 500; // Pause before new phrase
+        }
+
+        setTimeout(type, typeSpeed);
+    }
+
+    // Start typing after preloader
+    setTimeout(type, 2000);
+}
+
+// Back to Top Logic
+const backToTopBtn = document.getElementById('backToTop');
+if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.add('active');
+        } else {
+            backToTopBtn.classList.remove('active');
+        }
+    });
+}

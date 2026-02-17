@@ -37,7 +37,7 @@
         <div class="background-overlay"></div>
         <div class="container">
             <div class="hero-content">
-                <span class="subtitle">حلول تقنية متكاملة</span>
+                <span class="subtitle" id="typewriter"></span>
                 <h1>نبتكر المستقبل الرقمي<br>لأعمالك و نموها</h1>
                 <p>بإشراف المهندس وهاج هزازي، نقدم أحدث الخدمات الرقمية وحلول تقنية المعلومات لتطوير أعمالكم ورفع
                     كفاءتها.</p>
@@ -209,6 +209,73 @@
         </div>
     </section>
 
+    <!-- Process Timeline -->
+    <section class="process-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">كيف نعمل</div>
+                <h2 class="section-title">رحلة نجاح مشروعك</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-comments"></i></div>
+                    <div class="timeline-content">
+                        <h3>1. الاستشارة والمعاينة</h3>
+                        <p>نفهم احتياجاتك بدقة ونقوم بمعاينة الموقع لتحديد المتطلبات.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-pencil-ruler"></i></div>
+                    <div class="timeline-content">
+                        <h3>2. التصميم والتخطيط</h3>
+                        <p>نقدم عرض فني ومالي مفصل مع مخططات تنفيذية للمشروع.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-tools"></i></div>
+                    <div class="timeline-content">
+                        <h3>3. التنفيذ والتركيب</h3>
+                        <p>فريق فني محترف يقوم بالتركيب بأعلى معايير الجودة.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-check-double"></i></div>
+                    <div class="timeline-content">
+                        <h3>4. التسليم والضمان</h3>
+                        <p>تدريب العميل على النظام وتسليمه مع ضمان ودعم فني مستمر.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Carousel -->
+    <section class="partners-section">
+        <div class="container">
+            <div class="partners-slider">
+                <div class="slide-track">
+                    <div class="slide"><i class="fab fa-aws"></i></div>
+                    <div class="slide"><i class="fab fa-google"></i></div>
+                    <div class="slide"><i class="fab fa-microsoft"></i></div>
+                    <div class="slide"><i class="fas fa-server"></i></div>
+                    <div class="slide"><i class="fas fa-network-wired"></i></div>
+                    <div class="slide"><i class="fas fa-wifi"></i></div>
+                    <div class="slide"><i class="fas fa-fingerprint"></i></div>
+                    <div class="slide"><i class="fas fa-video"></i></div>
+                    <!-- Double for seamless loop -->
+                    <div class="slide"><i class="fab fa-aws"></i></div>
+                    <div class="slide"><i class="fab fa-google"></i></div>
+                    <div class="slide"><i class="fab fa-microsoft"></i></div>
+                    <div class="slide"><i class="fas fa-server"></i></div>
+                    <div class="slide"><i class="fas fa-network-wired"></i></div>
+                    <div class="slide"><i class="fas fa-wifi"></i></div>
+                    <div class="slide"><i class="fas fa-fingerprint"></i></div>
+                    <div class="slide"><i class="fas fa-video"></i></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Stats Section -->
     <section class="stats" id="stats">
         <div class="container">
@@ -236,6 +303,10 @@
             </div>
         </div>
     </section>
+
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
 
     <section id="contact" class="contact">
         <div class="container">
@@ -293,7 +364,15 @@
         </div>
     </footer>
 
-    <script src="script.js?v=8"></script>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-content">
+            <img src="logo.png" alt="PING NET Logo" class="loader-logo">
+            <div class="loader-circle"></div>
+        </div>
+    </div>
+
+    <script src="script.js?v=9"></script>
     </script>
 
     <!-- Floating WhatsApp Button -->
