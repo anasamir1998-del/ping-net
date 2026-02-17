@@ -251,10 +251,20 @@ const createCustomAlert = () => {
     document.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         alertOverlay.classList.add('active');
-
-        // Vibration for mobile (optional but cool)
         if (navigator.vibrate) navigator.vibrate(200);
     });
+
+    // Mobile Long Press Support
+    let longPressTimer;
+    document.addEventListener('touchstart', (e) => {
+        longPressTimer = setTimeout(() => {
+            alertOverlay.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(200);
+        }, 800);
+    });
+
+    document.addEventListener('touchend', () => clearTimeout(longPressTimer));
+    document.addEventListener('touchmove', () => clearTimeout(longPressTimer));
 
     // Close on click anywhere
     alertOverlay.addEventListener('click', () => {
