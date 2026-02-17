@@ -1252,6 +1252,11 @@ footer {
     align-items: center;
     justify-content: center;
     padding: 0 20px;
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    position: relative;
+    z-index: 1;
+    /* Ensure above background */
 }
 
 @keyframes scroll {
