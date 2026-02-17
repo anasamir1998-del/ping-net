@@ -1241,20 +1241,26 @@ footer {
     display: flex;
     width: calc(250px * 30);
     /* 3 Sets of 10 items */
-    will-change: transform;
 }
 
-/* ... existing code ... */
+.slide {
+    height: 100px;
+    width: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+}
 
 @keyframes scroll {
     0% {
         transform: translateX(calc(-250px * 20));
-        /* Start at Set 3 (-5000px) */
+        /* Start at Set 3 */
     }
 
     100% {
         transform: translateX(calc(-250px * 10));
-        /* End at Set 2 (-2500px) */
+        /* Scroll to Set 2 */
     }
 }
 
