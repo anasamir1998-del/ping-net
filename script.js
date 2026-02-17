@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// Custom Right Click Alert & Copy Protection (No Black Screen)
+// Custom Right Click Alert & Enhanced Screenshot Protection
 const createCustomAlert = () => {
     if (document.getElementById('customAlert')) return;
 
@@ -373,15 +373,19 @@ const createCustomAlert = () => {
         alertOverlay.classList.add('active');
         if (navigator.vibrate) navigator.vibrate(200);
 
+        // Lock screen and ensure overlay is visible
+        document.body.style.overflow = 'hidden';
+
         // Clear clipboard
         if (navigator.clipboard) {
             navigator.clipboard.writeText('حقوق الملكية محفوظة لـ PING NET - ممنوع النسخ');
         }
 
-        // Hide alert after 2 seconds
+        // Hide alert after 3 seconds
         setTimeout(() => {
             alertOverlay.classList.remove('active');
-        }, 2000);
+            document.body.style.overflow = '';
+        }, 3000);
     };
 
     // Right Click Protection
@@ -390,26 +394,86 @@ const createCustomAlert = () => {
         showRestrictedAlert();
     });
 
-    // Clipboard Protection
-    document.addEventListener('copy', (e) => {
-        e.preventDefault();
-        showRestrictedAlert();
+    // Keyboard Shortcuts Protection
+    const checkKey = (e) => {
+        if (
+            e.key === 'PrintScreen' ||
+            (e.ctrlKey && e.key === 'p') ||
+            (e.ctrlKey && e.key === 's') ||
+            (e.ctrlKey && e.key === 'u') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+            (e.key === 'F12') ||
+            (e.metaKey && e.shiftKey && (e.key === 's' || e.key === 'S' || e.code === 'KeyS'))
+        ) {
+            e.preventDefault();
+            e.stopPropagation();
+            showRestrictedAlert();
+            return true;
+        }
+        return false;
+    };
+
+    document.addEventListener('keydown', checkKey);
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen') showRestrictedAlert();
     });
 
-    document.addEventListener('cut', (e) => {
-        e.preventDefault();
-        showRestrictedAlert();
+    // Window Blur (Often triggered by Snipping Tool)
+    window.addEventListener('blur', () => {
+        showRestrictedAlert(); // Trigger black screen on blur
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText('');
+        }
     });
+
+    // Mobile Long Press Support with Tolerance
+    let longPressTimer;
+    let startX, startY;
+    let longPressHappened = false;
+    const tolerance = 10;
+
+    document.addEventListener('touchstart', (e) => {
+        longPressHappened = false;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+
+        longPressTimer = setTimeout(() => {
+            longPressHappened = true;
+            showRestrictedAlert();
+        }, 500);
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        const diffX = Math.abs(e.touches[0].clientX - startX);
+        const diffY = Math.abs(e.touches[0].clientY - startY);
+
+        if (diffX > tolerance || diffY > tolerance) {
+            clearTimeout(longPressTimer);
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        clearTimeout(longPressTimer);
+        if (longPressHappened) {
+            e.preventDefault(); // Prevent ghost click
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchcancel', () => clearTimeout(longPressTimer));
 
     // Close on click anywhere
     alertOverlay.addEventListener('click', () => {
         alertOverlay.classList.remove('active');
+        document.body.style.overflow = '';
     });
 
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             alertOverlay.classList.remove('active');
+            document.body.style.overflow = '';
         }
     });
 };
