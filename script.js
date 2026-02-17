@@ -351,6 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Custom Right Click Alert
+// Custom Right Click Alert & Screenshot Protection
 const createCustomAlert = () => {
     if (document.getElementById('customAlert')) return;
 
@@ -367,10 +368,63 @@ const createCustomAlert = () => {
 
     const alertOverlay = document.getElementById('customAlert');
 
-    document.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
+    const showRestrictedAlert = () => {
         alertOverlay.classList.add('active');
         if (navigator.vibrate) navigator.vibrate(200);
+
+        // Flash/Hide Content Protection
+        document.body.style.display = 'none';
+        setTimeout(() => {
+            document.body.style.display = '';
+        }, 1000); // Hide for 1 second to ruin the screenshot
+    };
+
+    // Right Click Protection
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showRestrictedAlert();
+    });
+
+    // Keyboard Shortcuts Protection (Screenshot, Print, Save, Developer Tools)
+    document.addEventListener('keydown', (e) => {
+        // Check for specific keys
+        if (
+            e.key === 'PrintScreen' ||
+            (e.ctrlKey && e.key === 'p') || // Ctrl+P
+            (e.ctrlKey && e.key === 's') || // Ctrl+S
+            (e.ctrlKey && e.key === 'u') || // Ctrl+U
+            (e.ctrlKey && e.shiftKey && e.key === 'I') || // DevTools
+            (e.ctrlKey && e.shiftKey && e.key === 'C') || // DevTools
+            (e.ctrlKey && e.shiftKey && e.key === 'J') || // DevTools
+            (e.key === 'F12') // DevTools
+        ) {
+            e.preventDefault();
+            e.stopPropagation();
+            showRestrictedAlert();
+
+            // Attempt to clear clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText('');
+            }
+        }
+
+        // Mac Specific (Command + Shift + 3/4/S)
+        if (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            e.stopPropagation();
+            showRestrictedAlert();
+        }
+    });
+
+    // Detect PrintScreen KeyUp (sometimes better for screenshot tools)
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen') {
+            showRestrictedAlert();
+            // Clear clipboard again just in case
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText('');
+            }
+        }
     });
 
     // Mobile Long Press Support with Tolerance
@@ -386,8 +440,7 @@ const createCustomAlert = () => {
 
         longPressTimer = setTimeout(() => {
             longPressHappened = true;
-            alertOverlay.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate(200);
+            showRestrictedAlert();
         }, 500);
     }, { passive: false });
 
