@@ -371,30 +371,19 @@ const createCustomAlert = () => {
         alertOverlay.classList.add('active');
         if (navigator.vibrate) navigator.vibrate(200);
 
-        // Flash/Hide Content Protection - Improved
-        const allElements = document.body.children;
-        const hiddenElements = [];
-
-        for (let el of allElements) {
-            if (el.id !== 'customAlert' && el.style.display !== 'none') {
-                el.dataset.oldFilter = el.style.filter || 'none';
-                el.dataset.oldOpacity = el.style.opacity || '1';
-
-                el.style.display = 'none'; // Hard hide
-                hiddenElements.push(el);
-            }
-        }
-
-        setTimeout(() => {
-            hiddenElements.forEach(el => {
-                el.style.display = '';
-            });
-        }, 1000); // Hide for 1 second
+        // Lock screen and ensure overlay is visible
+        document.body.style.overflow = 'hidden';
 
         // Clear clipboard
         if (navigator.clipboard) {
             navigator.clipboard.writeText('حقوق الملكية محفوظة لـ PING NET - ممنوع النسخ');
         }
+
+        // Hide alert after 3 seconds
+        setTimeout(() => {
+            alertOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }, 3000);
     };
 
     // Right Click Protection
@@ -453,7 +442,6 @@ const createCustomAlert = () => {
         }, 500);
     }, { passive: false });
 
-    // ... rest of mobile touch logic remains same ...
     document.addEventListener('touchmove', (e) => {
         const diffX = Math.abs(e.touches[0].clientX - startX);
         const diffY = Math.abs(e.touches[0].clientY - startY);
@@ -475,11 +463,15 @@ const createCustomAlert = () => {
     // Close on click anywhere
     alertOverlay.addEventListener('click', () => {
         alertOverlay.classList.remove('active');
+        document.body.style.overflow = '';
     });
 
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') alertOverlay.classList.remove('active');
+        if (e.key === 'Escape') {
+            alertOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     });
 };
 
