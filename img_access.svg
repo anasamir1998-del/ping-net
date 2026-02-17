@@ -1,0 +1,15 @@
+<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
+    <rect width="600" height="400" fill="#0f172a"/>
+    <g transform="translate(220, 80)">
+        <rect x="0" y="0" width="160" height="220" rx="5" fill="#e2e8f0"/>
+        <rect x="10" y="10" width="140" height="200" fill="#cbd5e1"/>
+        <!-- Handle -->
+        <circle cx="130" cy="110" r="8" fill="#475569"/>
+        <!-- Lock Pad -->
+        <rect x="20" y="80" width="40" height="60" fill="#1e293b" rx="4"/>
+        <circle cx="40" cy="100" r="5" fill="#22c55e"/> <!-- Green Light -->
+        <rect x="25" y="115" width="30" height="4" fill="#64748b"/>
+        <rect x="25" y="125" width="30" height="4" fill="#64748b"/>
+    </g>
+    <text x="300" y="340" font-family="Arial" font-size="24" fill="#06b6d4" text-anchor="middle">التحكم في الوصول</text>
+</svg>
