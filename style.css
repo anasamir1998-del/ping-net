@@ -1238,47 +1238,23 @@ footer {
 
 .slide-track {
     animation: scroll 20s linear infinite;
-    /* Sped up from 40s */
     display: flex;
-    width: calc(250px * 20);
-    /* Adjusted width for more items */
+    width: calc(250px * 30);
+    /* 3 Sets of 10 items */
+    will-change: transform;
 }
 
-.slide {
-    height: 100px;
-    width: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 20px;
-}
-
-.partner-logo {
-    font-size: 2rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-    letter-spacing: 2px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* Clean sans-serif */
-}
-
-.slide:hover .partner-logo {
-    color: var(--primary-color);
-    transform: scale(1.1);
-    text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
-}
+/* ... existing code ... */
 
 @keyframes scroll {
     0% {
-        transform: translateX(calc(-250px * 10));
-        /* Start from duplicate set */
+        transform: translateX(calc(-250px * 20));
+        /* Start at Set 3 (-5000px) */
     }
 
     100% {
-        transform: translateX(0);
-        /* Scroll to original set */
+        transform: translateX(calc(-250px * 10));
+        /* End at Set 2 (-2500px) */
     }
 }
 
