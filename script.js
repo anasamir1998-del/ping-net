@@ -359,8 +359,8 @@ const createCustomAlert = () => {
     const alertHTML = `
         <div id="customAlert" class="custom-alert-overlay">
             <div class="custom-alert-box">
-                <div class="custom-alert-icon">😎</div>
-                <div class="custom-alert-message">غير مسموح يا برنس</div>
+                <div class="custom-alert-icon">🚫</div>
+                <div class="custom-alert-message">متحاولش تعمل كدا تاني 😡</div>
                 <p style="color: #94a3b8;">حقوق الملكية محفوظة لـ PING NET</p>
             </div>
         </div>
