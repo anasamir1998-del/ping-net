@@ -1239,8 +1239,10 @@ footer {
 .slide-track {
     animation: scroll 20s linear infinite;
     display: flex;
-    width: calc(250px * 30);
-    /* 3 Sets of 10 items */
+    width: 7500px;
+    /* 3 Sets * 10 Items * 250px */
+    direction: ltr;
+    /* Force LTR for predictable coordinates */
 }
 
 .slide {
@@ -1254,12 +1256,12 @@ footer {
 
 @keyframes scroll {
     0% {
-        transform: translateX(calc(-250px * 20));
+        transform: translateX(-5000px);
         /* Start at Set 3 */
     }
 
     100% {
-        transform: translateX(calc(-250px * 10));
+        transform: translateX(-2500px);
         /* Scroll to Set 2 */
     }
 }
