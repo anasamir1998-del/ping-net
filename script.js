@@ -254,17 +254,35 @@ const createCustomAlert = () => {
         if (navigator.vibrate) navigator.vibrate(200);
     });
 
-    // Mobile Long Press Support
+    // Mobile Long Press Support with Tolerance
     let longPressTimer;
+    let startX, startY;
+    const tolerance = 10; // 10px movement allowed
+
     document.addEventListener('touchstart', (e) => {
+        // Store initial touch position
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+
         longPressTimer = setTimeout(() => {
             alertOverlay.classList.add('active');
             if (navigator.vibrate) navigator.vibrate(200);
-        }, 800);
-    });
+        }, 500); // 500ms long press
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        // Calculate distance moved
+        const diffX = Math.abs(e.touches[0].clientX - startX);
+        const diffY = Math.abs(e.touches[0].clientY - startY);
+
+        // If moved beyond tolerance, cancel timer (user is scrolling)
+        if (diffX > tolerance || diffY > tolerance) {
+            clearTimeout(longPressTimer);
+        }
+    }, { passive: true });
 
     document.addEventListener('touchend', () => clearTimeout(longPressTimer));
-    document.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+    document.addEventListener('touchcancel', () => clearTimeout(longPressTimer));
 
     // Close on click anywhere
     alertOverlay.addEventListener('click', () => {
