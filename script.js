@@ -257,31 +257,37 @@ const createCustomAlert = () => {
     // Mobile Long Press Support with Tolerance
     let longPressTimer;
     let startX, startY;
-    const tolerance = 10; // 10px movement allowed
+    let longPressHappened = false;
+    const tolerance = 10;
 
     document.addEventListener('touchstart', (e) => {
-        // Store initial touch position
+        longPressHappened = false;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
 
         longPressTimer = setTimeout(() => {
+            longPressHappened = true;
             alertOverlay.classList.add('active');
             if (navigator.vibrate) navigator.vibrate(200);
-        }, 500); // 500ms long press
-    }, { passive: true });
+        }, 500);
+    }, { passive: false });
 
     document.addEventListener('touchmove', (e) => {
-        // Calculate distance moved
         const diffX = Math.abs(e.touches[0].clientX - startX);
         const diffY = Math.abs(e.touches[0].clientY - startY);
 
-        // If moved beyond tolerance, cancel timer (user is scrolling)
         if (diffX > tolerance || diffY > tolerance) {
             clearTimeout(longPressTimer);
         }
-    }, { passive: true });
+    }, { passive: false });
 
-    document.addEventListener('touchend', () => clearTimeout(longPressTimer));
+    document.addEventListener('touchend', (e) => {
+        clearTimeout(longPressTimer);
+        if (longPressHappened) {
+            e.preventDefault(); // Prevent ghost click
+        }
+    }, { passive: false });
+
     document.addEventListener('touchcancel', () => clearTimeout(longPressTimer));
 
     // Close on click anywhere
