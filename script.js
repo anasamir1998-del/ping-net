@@ -350,8 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Custom Right Click Alert
-// Custom Right Click Alert & Screenshot Protection
+// Custom Right Click Alert & Enhanced Screenshot Protection
 const createCustomAlert = () => {
     if (document.getElementById('customAlert')) return;
 
@@ -372,11 +371,30 @@ const createCustomAlert = () => {
         alertOverlay.classList.add('active');
         if (navigator.vibrate) navigator.vibrate(200);
 
-        // Flash/Hide Content Protection
-        document.body.style.display = 'none';
+        // Flash/Hide Content Protection - Improved
+        const allElements = document.body.children;
+        const hiddenElements = [];
+
+        for (let el of allElements) {
+            if (el.id !== 'customAlert' && el.style.display !== 'none') {
+                el.dataset.oldFilter = el.style.filter || 'none';
+                el.dataset.oldOpacity = el.style.opacity || '1';
+
+                el.style.display = 'none'; // Hard hide
+                hiddenElements.push(el);
+            }
+        }
+
         setTimeout(() => {
-            document.body.style.display = '';
-        }, 1000); // Hide for 1 second to ruin the screenshot
+            hiddenElements.forEach(el => {
+                el.style.display = '';
+            });
+        }, 1000); // Hide for 1 second
+
+        // Clear clipboard
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText('حقوق الملكية محفوظة لـ PING NET - ممنوع النسخ');
+        }
     };
 
     // Right Click Protection
@@ -385,45 +403,36 @@ const createCustomAlert = () => {
         showRestrictedAlert();
     });
 
-    // Keyboard Shortcuts Protection (Screenshot, Print, Save, Developer Tools)
-    document.addEventListener('keydown', (e) => {
-        // Check for specific keys
+    // Keyboard Shortcuts Protection
+    const checkKey = (e) => {
         if (
             e.key === 'PrintScreen' ||
-            (e.ctrlKey && e.key === 'p') || // Ctrl+P
-            (e.ctrlKey && e.key === 's') || // Ctrl+S
-            (e.ctrlKey && e.key === 'u') || // Ctrl+U
-            (e.ctrlKey && e.shiftKey && e.key === 'I') || // DevTools
-            (e.ctrlKey && e.shiftKey && e.key === 'C') || // DevTools
-            (e.ctrlKey && e.shiftKey && e.key === 'J') || // DevTools
-            (e.key === 'F12') // DevTools
+            (e.ctrlKey && e.key === 'p') ||
+            (e.ctrlKey && e.key === 's') ||
+            (e.ctrlKey && e.key === 'u') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+            (e.key === 'F12') ||
+            (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === 's' || e.key === 'S'))
         ) {
             e.preventDefault();
             e.stopPropagation();
             showRestrictedAlert();
-
-            // Attempt to clear clipboard
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText('');
-            }
+            return true;
         }
+        return false;
+    };
 
-        // Mac Specific (Command + Shift + 3/4/S)
-        if (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === 's' || e.key === 'S')) {
-            e.preventDefault();
-            e.stopPropagation();
-            showRestrictedAlert();
-        }
+    document.addEventListener('keydown', checkKey);
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen') showRestrictedAlert();
     });
 
-    // Detect PrintScreen KeyUp (sometimes better for screenshot tools)
-    document.addEventListener('keyup', (e) => {
-        if (e.key === 'PrintScreen') {
-            showRestrictedAlert();
-            // Clear clipboard again just in case
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText('');
-            }
+    // Window Blur (Often triggered by Snipping Tool)
+    window.addEventListener('blur', () => {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText('');
         }
     });
 
@@ -444,6 +453,7 @@ const createCustomAlert = () => {
         }, 500);
     }, { passive: false });
 
+    // ... rest of mobile touch logic remains same ...
     document.addEventListener('touchmove', (e) => {
         const diffX = Math.abs(e.touches[0].clientX - startX);
         const diffY = Math.abs(e.touches[0].clientY - startY);
