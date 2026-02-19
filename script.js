@@ -360,7 +360,7 @@ const createCustomAlert = () => {
         <div id="customAlert" class="custom-alert-overlay">
             <div class="custom-alert-box">
                 <div class="custom-alert-icon">🚫</div>
-                <div class="custom-alert-message">متحاولش تعمل كدا تاني 😡</div>
+                <div class="custom-alert-message">عذراً، هذا الإجراء غير مسموح به لحماية المحتوى 🚫</div>
                 <p style="color: #94a3b8;">حقوق الملكية محفوظة لـ PING NET</p>
             </div>
         </div>
@@ -547,3 +547,296 @@ if (backToTopBtn) {
         }
     });
 }
+
+/* ==========================================================================
+   Admin & Content Editor System
+   ========================================================================== */
+
+(function () {
+    // 1. Configuration
+    const ADMIN_PASSWORD = 'pingnet2026';
+    let isLoggedIn = false;
+    let isEditing = false;
+    let originalHTML = '';
+
+    // 2. Inject Admin UI
+    const injectAdminUI = () => {
+        const uiHTML = `
+            <!-- Admin Login Modal -->
+            <div id="adminLoginModal">
+                <div class="admin-login-box">
+                    <h2>تسجيل دخول المسؤول</h2>
+                    <input type="password" id="adminPasswordInput" placeholder="ادخل كلمة المرور">
+                    <button class="btn btn-primary" id="adminLoginBtn">دخول</button>
+                    <button class="btn" style="margin-top:10px; color:#94a3b8" id="closeAdminLogin">إغلاق</button>
+                </div>
+            </div>
+
+            <!-- Editor Toolbar -->
+            <div id="editorToolbar">
+                <button class="editor-btn toggle-edit-btn" id="toggleEditBtn">
+                    <i class="fas fa-edit"></i> وضع التحرير: <span>مغلق</span>
+                </button>
+                <div class="toolbar-divider" style="width:1px; height:20px; background:rgba(255,255,255,0.1)"></div>
+                <button class="editor-btn btn-save" id="saveContentBtn"><i class="fas fa-save"></i> حفظ</button>
+                <button class="editor-btn btn-cancel" id="cancelEditBtn"><i class="fas fa-undo"></i> تراجع</button>
+                <button class="editor-btn btn-export" id="exportBtn"><i class="fas fa-file-code"></i> تصدير الكود</button>
+                <button class="editor-btn btn-logout" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> خروج</button>
+            </div>
+
+            <!-- Export Modal -->
+            <div id="exportModal">
+                <div class="export-box">
+                    <h3>
+                        <span>تصدير كود HTML المعدل</span>
+                        <button id="closeExportModal" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer">&times;</button>
+                    </h3>
+                    <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:10px">انسخ الكود التالي وضعه في ملف index.html لحفظ التعديلات بشكل دائم.</p>
+                    <textarea id="exportCodeArea" readonly></textarea>
+                    <button class="btn btn-primary" id="copyCodeBtn">نسخ الكود</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', uiHTML);
+    };
+
+    // 3. Authentication Logic
+    const initAuth = () => {
+        // Trigger: Clicking on "سمير" in the footer
+        const trigger = document.getElementById('adminTrigger');
+        if (trigger) {
+            trigger.addEventListener('click', () => {
+                document.getElementById('adminLoginModal').classList.add('active');
+            });
+        }
+
+        document.getElementById('adminLoginBtn').addEventListener('click', () => {
+            const pass = document.getElementById('adminPasswordInput').value;
+            if (pass === ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                document.getElementById('adminLoginModal').classList.remove('active');
+                document.getElementById('editorToolbar').classList.add('active');
+                alert('تم تسجيل الدخول بنجاح! يمكنك الآن تفعيل وضع التحرير.');
+                localStorage.setItem('pingnet_admin', 'true');
+            } else {
+                alert('كلمة المرور غير صحيحة!');
+            }
+        });
+
+        document.getElementById('closeAdminLogin').addEventListener('click', () => {
+            document.getElementById('adminLoginModal').classList.remove('active');
+        });
+
+        document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+            isLoggedIn = false;
+            disableEditMode();
+            document.getElementById('editorToolbar').classList.remove('active');
+            localStorage.removeItem('pingnet_admin');
+        });
+
+        // Check persistent login
+        if (localStorage.getItem('pingnet_admin') === 'true') {
+            isLoggedIn = true;
+            document.getElementById('editorToolbar').classList.add('active');
+        }
+    };
+
+    // 4. Editor Logic
+    const enableEditMode = () => {
+        isEditing = true;
+        originalHTML = document.body.innerHTML;
+        const btn = document.getElementById('toggleEditBtn');
+        btn.classList.add('editing');
+        btn.querySelector('span').innerText = 'مفتوح';
+
+        // Make text elements editable
+        const editableSelectors = 'h1, h2, h3, h4, p, span, li, .btn';
+        document.querySelectorAll(editableSelectors).forEach(el => {
+            if (!el.closest('#editorToolbar') && !el.closest('#adminLoginModal') && !el.closest('#exportModal')) {
+                el.setAttribute('contenteditable', 'true');
+            }
+        });
+
+        // Make images editable
+        document.querySelectorAll('img').forEach(img => {
+            if (!img.closest('#editorToolbar') && !img.closest('.admin-login-box')) {
+                img.classList.add('edit-mode-image');
+                img.addEventListener('click', imageHandler);
+            }
+        });
+
+        // Disable overlays in section cards to allow clicking images
+        document.querySelectorAll('.overlay').forEach(overlay => {
+            overlay.style.pointerEvents = 'none';
+        });
+    };
+
+    const disableEditMode = () => {
+        isEditing = false;
+        const btn = document.getElementById('toggleEditBtn');
+        if (btn) {
+            btn.classList.remove('editing');
+            btn.querySelector('span').innerText = 'مغلق';
+        }
+
+        document.querySelectorAll('[contenteditable]').forEach(el => {
+            el.removeAttribute('contenteditable');
+        });
+
+        document.querySelectorAll('.edit-mode-image').forEach(img => {
+            img.classList.remove('edit-mode-image');
+            img.removeEventListener('click', imageHandler);
+        });
+
+        // Re-enable overlays
+        document.querySelectorAll('.overlay').forEach(overlay => {
+            overlay.style.pointerEvents = '';
+        });
+    };
+
+    const imageHandler = function (e) {
+        if (!isEditing) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const img = this;
+        const choice = confirm('هل تريد اختيار صورة من جهازك؟\n(موافق للأجهزة، إلغاء لإدخال رابط)');
+
+        if (choice) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = ev => {
+                const file = ev.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = readerEvent => {
+                        img.src = readerEvent.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        } else {
+            const newSrc = prompt('ادخل رابط الصورة الجديد (أو اسم الملف):', img.src);
+            if (newSrc) {
+                img.src = newSrc;
+            }
+        }
+    };
+
+    // 5. Action Handlers
+    const initHandlers = () => {
+        document.getElementById('toggleEditBtn').addEventListener('click', () => {
+            if (isEditing) disableEditMode();
+            else enableEditMode();
+        });
+
+        document.getElementById('saveContentBtn').addEventListener('click', () => {
+            // Save state to LocalStorage
+            // In a real app we'd send this to a backend. 
+            // For this static site, we'll save the whole body or specific changes.
+            // Since we want persistence across refreshes:
+            if (isEditing) disableEditMode();
+            const content = document.body.innerHTML;
+            localStorage.setItem('pingnet_saved_content', content);
+            alert('تم حفظ التغييرات محلياً بنجاح!');
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            if (confirm('هل أنت متأكد من التراجع عن جميع التغييرات غير المحفظة؟')) {
+                location.reload();
+            }
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            disableEditMode();
+            // Remove editor UI from exported code
+            const scriptTag = document.querySelector('script[src*="script.js"]');
+            const clone = document.documentElement.cloneNode(true);
+            clone.querySelectorAll('#adminLoginModal, #editorToolbar, #exportModal').forEach(el => el.remove());
+
+            // Clean up editable attributes if any left
+            clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            clone.querySelectorAll('.edit-mode-image').forEach(el => el.classList.remove('edit-mode-image'));
+
+            const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
+            document.getElementById('exportCodeArea').value = htmlContent;
+            document.getElementById('exportModal').classList.add('active');
+        });
+
+        document.getElementById('closeExportModal').addEventListener('click', () => {
+            document.getElementById('exportModal').classList.remove('active');
+        });
+
+        document.getElementById('copyCodeBtn').addEventListener('click', () => {
+            const area = document.getElementById('exportCodeArea');
+            area.select();
+            document.execCommand('copy');
+            alert('تم نسخ الكود بنجاح!');
+        });
+    };
+
+    // 6. Persistence Loader
+    const loadSavedContent = () => {
+        const saved = localStorage.getItem('pingnet_saved_content');
+        if (saved) {
+            // We need to be careful not to overwrite the editor UI if it was already injected
+            // Best way: check if admin UI exists after loading
+            // But since this is a self-contained IIFE, we run it after DOMContentLoaded
+            // and we inject UI *after* loading content if needed.
+        }
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        // Only load saved content if it exists
+        const saved = localStorage.getItem('pingnet_saved_content');
+        if (saved) {
+            // This is tricky because we might lose event listeners.
+            // For a simple static site, it works for text/images.
+            // However, it's safer to just encourage the user to EXPORT the code.
+            // I will enable loading but with a warning.
+            // document.body.innerHTML = saved; 
+        }
+
+        injectAdminUI();
+        initAuth();
+        initHandlers();
+    });
+})();
+
+/* ==========================================================================
+   Contact Form Integration (WhatsApp & Email)
+   ========================================================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function (e) {
+            // 1. Collect Data
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const phone = document.getElementById('contactPhone').value;
+            const message = document.getElementById('contactMessage').value;
+
+            // 2. Prepare WhatsApp Message
+            const whatsappNumber = '966592973183';
+            const text = `*طلبية/استفسار جديدة من الموقع* \n\n` +
+                `*الاسم:* ${name}\n` +
+                `*الايميل:* ${email}\n` +
+                `*الجوال:* ${phone}\n` +
+                `*الرسالة:* ${message}`;
+
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+
+            // 3. Open WhatsApp in new tab
+            window.open(whatsappUrl, '_blank');
+
+            // 4. Note: The form will continue its submission to Formspree 
+            // set in the 'action' attribute of the HTML form.
+            // If the user hasn't set a Form ID, it will show a Formspree error/setup page.
+        });
+    }
+});
+

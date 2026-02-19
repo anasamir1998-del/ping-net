@@ -1490,3 +1490,228 @@ footer {
         visibility: visible !important;
     }
 }
+
+/* ==========================================================================
+   Admin & Editor UI
+   ========================================================================== */
+
+/* Admin Login Modal */
+#adminLoginModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100000;
+    padding: 20px;
+}
+
+#adminLoginModal.active {
+    display: flex;
+}
+
+.admin-login-box {
+    background: #1e293b;
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.admin-login-box h2 {
+    color: #fff;
+    margin-bottom: 25px;
+}
+
+.admin-login-box input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.admin-login-box .btn {
+    width: 100%;
+    padding: 12px;
+}
+
+/* Floating Editor Bar */
+#editorToolbar {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    padding: 10px 25px;
+    border-radius: 50px;
+    display: none;
+    align-items: center;
+    gap: 15px;
+    z-index: 99999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#editorToolbar.active {
+    display: flex;
+}
+
+.editor-btn {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+    font-family: 'Tajawal', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-save {
+    background: #10b981;
+    color: white;
+}
+
+.btn-save:hover {
+    background: #059669;
+}
+
+.btn-cancel {
+    background: #64748b;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #475569;
+}
+
+.btn-export {
+    background: #06b6d4;
+    color: white;
+}
+
+.btn-export:hover {
+    background: #0891b2;
+}
+
+.btn-logout {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-logout:hover {
+    background: #dc2626;
+}
+
+.toggle-edit-btn {
+    background: #334155;
+    color: white;
+}
+
+.toggle-edit-btn.editing {
+    background: #f59e0b;
+}
+
+/* Editable Elements Styles */
+[contenteditable="true"] {
+    position: relative;
+    outline: 2px dashed #f59e0b !important;
+    outline-offset: 4px;
+    transition: all 0.2s;
+}
+
+[contenteditable="true"]:hover {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.edit-mode-image {
+    position: relative;
+    cursor: pointer;
+}
+
+.edit-mode-image::after {
+    content: "📷 تغيير الصورة";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.edit-mode-image:hover::after {
+    opacity: 1;
+}
+
+/* Export Modal */
+#exportModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100001;
+    padding: 40px;
+}
+
+#exportModal.active {
+    display: flex;
+}
+
+.export-box {
+    background: #1e293b;
+    width: 100%;
+    max-width: 800px;
+    height: 80vh;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.export-box h3 {
+    color: white;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#exportCodeArea {
+    flex: 1;
+    background: #0f172a;
+    color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    resize: none;
+    margin-bottom: 20px;
+    white-space: pre;
+    overflow: auto;
+}
