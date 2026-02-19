@@ -555,6 +555,12 @@ if (backToTopBtn) {
 (function () {
     // 1. Configuration
     const ADMIN_PASSWORD = 'pingnet2026';
+    const GITHUB_CONFIG = {
+        owner: 'anasamir1998-del',
+        repo: 'pingnet',
+        path: 'index.html'
+    };
+
     let isLoggedIn = false;
     let isEditing = false;
     let originalHTML = '';
@@ -567,6 +573,10 @@ if (backToTopBtn) {
                 <div class="admin-login-box">
                     <h2>تسجيل دخول المسؤول</h2>
                     <input type="password" id="adminPasswordInput" placeholder="ادخل كلمة المرور">
+                    <div id="githubTokenSetup" style="display:none; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px">
+                        <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px">إعداد الحفظ التلقائي (GitHub API)</p>
+                        <input type="password" id="ghTokenInput" placeholder="GitHub Personal Access Token">
+                    </div>
                     <button class="btn btn-primary" id="adminLoginBtn">دخول</button>
                     <button class="btn" style="margin-top:10px; color:#94a3b8" id="closeAdminLogin">إغلاق</button>
                 </div>
@@ -578,10 +588,17 @@ if (backToTopBtn) {
                     <i class="fas fa-edit"></i> وضع التحرير: <span>مغلق</span>
                 </button>
                 <div class="toolbar-divider" style="width:1px; height:20px; background:rgba(255,255,255,0.1)"></div>
-                <button class="editor-btn btn-save" id="saveContentBtn"><i class="fas fa-save"></i> حفظ</button>
+                <button class="editor-btn btn-save" id="saveContentBtn"><i class="fas fa-cloud-upload-alt"></i> حفظ في GitHub</button>
                 <button class="editor-btn btn-cancel" id="cancelEditBtn"><i class="fas fa-undo"></i> تراجع</button>
                 <button class="editor-btn btn-export" id="exportBtn"><i class="fas fa-file-code"></i> تصدير الكود</button>
+                <button class="editor-btn btn-token" id="setupTokenBtn"><i class="fas fa-key"></i> إعداد الـ Token</button>
                 <button class="editor-btn btn-logout" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> خروج</button>
+            </div>
+            
+            <!-- Loading Indicator -->
+            <div id="adminLoading">
+                <div class="loader"></div>
+                <p>جاري تحديث الموقع على GitHub...</p>
             </div>
 
             <!-- Export Modal -->
@@ -602,18 +619,22 @@ if (backToTopBtn) {
 
     // 3. Authentication Logic
     const initAuth = () => {
-        // Trigger: Clicking on "سمير" in the footer
         const trigger = document.getElementById('adminTrigger');
         if (trigger) {
             trigger.addEventListener('click', () => {
+                const hasToken = !!localStorage.getItem('gh_token');
+                document.getElementById('githubTokenSetup').style.display = hasToken ? 'none' : 'block';
                 document.getElementById('adminLoginModal').classList.add('active');
             });
         }
 
         document.getElementById('adminLoginBtn').addEventListener('click', () => {
             const pass = document.getElementById('adminPasswordInput').value;
+            const token = document.getElementById('ghTokenInput').value;
+
             if (pass === ADMIN_PASSWORD) {
                 isLoggedIn = true;
+                if (token) localStorage.setItem('gh_token', token);
                 document.getElementById('adminLoginModal').classList.remove('active');
                 document.getElementById('editorToolbar').classList.add('active');
                 alert('تم تسجيل الدخول بنجاح! يمكنك الآن تفعيل وضع التحرير.');
@@ -627,6 +648,14 @@ if (backToTopBtn) {
             document.getElementById('adminLoginModal').classList.remove('active');
         });
 
+        document.getElementById('setupTokenBtn').addEventListener('click', () => {
+            const newToken = prompt('ادخل GitHub Personal Access Token الجديد:', localStorage.getItem('gh_token') || '');
+            if (newToken !== null) {
+                localStorage.setItem('gh_token', newToken);
+                alert('تم حفظ الـ Token بنجاح.');
+            }
+        });
+
         document.getElementById('adminLogoutBtn').addEventListener('click', () => {
             isLoggedIn = false;
             disableEditMode();
@@ -634,7 +663,6 @@ if (backToTopBtn) {
             localStorage.removeItem('pingnet_admin');
         });
 
-        // Check persistent login
         if (localStorage.getItem('pingnet_admin') === 'true') {
             isLoggedIn = true;
             document.getElementById('editorToolbar').classList.add('active');
@@ -725,22 +753,88 @@ if (backToTopBtn) {
         }
     };
 
-    // 5. Action Handlers
+    // 5. GitHub API Operations
+    const updateFileOnGitHub = async (content) => {
+        const token = localStorage.getItem('gh_token');
+        if (!token) {
+            alert('يرجى إعداد GitHub Token أولاً من قائمة الإعدادات.');
+            return;
+        }
+
+        const loading = document.getElementById('adminLoading');
+        loading.classList.add('active');
+
+        try {
+            // 1. Get the current file SHA
+            const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+            const response = await fetch(getUrl, {
+                headers: { 'Authorization': `token ${token}` }
+            });
+
+            if (!response.ok) throw new Error('فشل الحصول على بيانات الملف من GitHub');
+            const fileData = await response.json();
+            const sha = fileData.sha;
+
+            // 2. Prepare the update
+            // Note: GitHub API expects base64 encoded content
+            // We use btoa(unescape(encodeURIComponent(content))) to handle UTF-8
+            const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+            const putResponse = await fetch(getUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: 'Update content via Admin Panel',
+                    content: encodedContent,
+                    sha: sha
+                })
+            });
+
+            if (putResponse.ok) {
+                alert('تم حفظ التعديلات ونشرها على GitHub بنجاح! قد يستغرق ظهورها أونلاين دقيقة واحدة.');
+            } else {
+                const errorData = await putResponse.json();
+                throw new Error(errorData.message || 'فشل تحديث الملف');
+            }
+        } catch (error) {
+            console.error('GitHub API Error:', error);
+            alert('حدث خطأ أثناء الحفظ: ' + error.message);
+        } finally {
+            loading.classList.remove('active');
+        }
+    };
+
+    // 6. Action Handlers
     const initHandlers = () => {
         document.getElementById('toggleEditBtn').addEventListener('click', () => {
             if (isEditing) disableEditMode();
             else enableEditMode();
         });
 
-        document.getElementById('saveContentBtn').addEventListener('click', () => {
-            // Save state to LocalStorage
-            // In a real app we'd send this to a backend. 
-            // For this static site, we'll save the whole body or specific changes.
-            // Since we want persistence across refreshes:
+        document.getElementById('saveContentBtn').addEventListener('click', async () => {
             if (isEditing) disableEditMode();
-            const content = document.body.innerHTML;
-            localStorage.setItem('pingnet_saved_content', content);
-            alert('تم حفظ التغييرات محلياً بنجاح!');
+
+            // Prepare clean code for export/save
+            const clone = document.documentElement.cloneNode(true);
+            clone.querySelectorAll('#adminLoginModal, #editorToolbar, #exportModal, #adminLoading, #customAlert, #chatToggle, #chatWidget, #preloader').forEach(el => el.remove());
+            clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            clone.querySelectorAll('.edit-mode-image').forEach(el => el.classList.remove('edit-mode-image'));
+
+            // Re-inject core scripts if they were removed (to ensure they exist in source)
+            // Actually, we only remove items that are injected via JS.
+
+            const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
+
+            const choice = confirm('هل تريد حفظ التعديلات ونشرها مباشرة على GitHub؟');
+            if (choice) {
+                await updateFileOnGitHub(htmlContent);
+            } else {
+                localStorage.setItem('pingnet_saved_content', htmlContent);
+                alert('تم الحفظ محلياً في المتصفح فقط.');
+            }
         });
 
         document.getElementById('cancelEditBtn').addEventListener('click', () => {
@@ -751,12 +845,8 @@ if (backToTopBtn) {
 
         document.getElementById('exportBtn').addEventListener('click', () => {
             disableEditMode();
-            // Remove editor UI from exported code
-            const scriptTag = document.querySelector('script[src*="script.js"]');
             const clone = document.documentElement.cloneNode(true);
-            clone.querySelectorAll('#adminLoginModal, #editorToolbar, #exportModal').forEach(el => el.remove());
-
-            // Clean up editable attributes if any left
+            clone.querySelectorAll('#adminLoginModal, #editorToolbar, #exportModal, #adminLoading, #customAlert, #chatToggle, #chatWidget, #preloader').forEach(el => el.remove());
             clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
             clone.querySelectorAll('.edit-mode-image').forEach(el => el.classList.remove('edit-mode-image'));
 

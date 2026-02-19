@@ -1715,3 +1715,67 @@ footer {
     white-space: pre;
     overflow: auto;
 }
+
+/* GitHub API Integration Styles */
+#adminLoginModal input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+#adminLoading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 200000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+#adminLoading.active {
+    display: flex;
+}
+
+#adminLoading .loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: var(--primary-color);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.editor-btn.btn-token {
+    background-color: #4b5563;
+}
+
+.editor-btn.btn-save {
+    background-color: #059669;
+}
+
+.editor-btn.btn-save:hover {
+    background-color: #047857;
+}
